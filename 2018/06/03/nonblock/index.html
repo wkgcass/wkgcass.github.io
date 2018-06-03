@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="program," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="什么是异步IO从API上来说，是一组非阻塞的IO API，不过这是废话。 换个角度：程序不因为IO调用而被阻塞，就可以说程序是异步的。 要理解这个回答，首先要知道什么是“异步”。 编程或者架构模型有4种。 1. 阻塞A调用B后，一直等着B返回结果。 这是最广泛使用，也是最简单的一种模型。普通的函数调用、传统的阻塞IO都是如此。 2. 轮询A调用B后，A不断去B那里查询返回结果。 这在耗时任务中经常">
+<meta name="keywords" content="program">
+<meta property="og:type" content="article">
+<meta property="og:title" content="异步IO是什么？">
+<meta property="og:url" content="http://yoursite.com/2018/06/03/nonblock/index.html">
+<meta property="og:site_name" content="wkgcass.blogs">
+<meta property="og:description" content="什么是异步IO从API上来说，是一组非阻塞的IO API，不过这是废话。 换个角度：程序不因为IO调用而被阻塞，就可以说程序是异步的。 要理解这个回答，首先要知道什么是“异步”。 编程或者架构模型有4种。 1. 阻塞A调用B后，一直等着B返回结果。 这是最广泛使用，也是最简单的一种模型。普通的函数调用、传统的阻塞IO都是如此。 2. 轮询A调用B后，A不断去B那里查询返回结果。 这在耗时任务中经常">
+<meta property="og:updated_time" content="2018-06-03T09:52:13.517Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="异步IO是什么？">
+<meta name="twitter:description" content="什么是异步IO从API上来说，是一组非阻塞的IO API，不过这是废话。 换个角度：程序不因为IO调用而被阻塞，就可以说程序是异步的。 要理解这个回答，首先要知道什么是“异步”。 编程或者架构模型有4种。 1. 阻塞A调用B后，一直等着B返回结果。 这是最广泛使用，也是最简单的一种模型。普通的函数调用、传统的阻塞IO都是如此。 2. 轮询A调用B后，A不断去B那里查询返回结果。 这在耗时任务中经常">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/06/03/nonblock/"/>
+
+
+
+
+
+  <title>异步IO是什么？ | wkgcass.blogs</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">wkgcass.blogs</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/03/nonblock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="wkgcass">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/10825968">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wkgcass.blogs">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">异步IO是什么？</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-03T15:44:44+08:00">
+                2018-06-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Program/" itemprop="url" rel="index">
+                    <span itemprop="name">Program</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-comment-o"></i>
+              </span>
+              
+                <a href="/2018/06/03/nonblock/#SOHUCS" itemprop="discussionUrl">
+                  <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="2018/06/03/nonblock/" itemprop="commentsCount"></span>
+                </a>
+              
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="什么是异步IO"><a href="#什么是异步IO" class="headerlink" title="什么是异步IO"></a>什么是异步IO</h1><p>从API上来说，是一组非阻塞的IO API，不过这是废话。</p>
+<p>换个角度：程序不因为IO调用而被阻塞，就可以说程序是异步的。</p>
+<p>要理解这个回答，首先要知道什么是“异步”。</p>
+<p>编程或者架构模型有4种。</p>
+<h2 id="1-阻塞"><a href="#1-阻塞" class="headerlink" title="1. 阻塞"></a>1. 阻塞</h2><p>A调用B后，一直等着B返回结果。</p>
+<p>这是最广泛使用，也是最简单的一种模型。普通的函数调用、传统的阻塞IO都是如此。</p>
+<h2 id="2-轮询"><a href="#2-轮询" class="headerlink" title="2. 轮询"></a>2. 轮询</h2><p>A调用B后，A不断去B那里查询返回结果。</p>
+<p>这在耗时任务中经常出现。比如一种资源的创建非常耗时，服务A通知服务B创建，B返回给A一个任务id或者资源id，A不断轮询B检查任务是否完成以及完成结果。这种也非常常见。在架构设计中，为了减少服务之间的循环依赖，常常不会让B再回去调用A。这样一来，在一个基于http的体系中，轮询是唯一解法。</p>
+<h2 id="3-阻塞回调"><a href="#3-阻塞回调" class="headerlink" title="3. 阻塞回调"></a>3. 阻塞回调</h2><p>A调用B后，A什么都不做，直到B通知A已完成</p>
+<p>这种模式并不是经常出现，而且它实际上是异步回调的一个子集。在（资源非常少，无法承接多个任务 | 或者A通知B进行的是其他任务的前提）时，可能会选择这种模型。</p>
+<h2 id="4-异步回调"><a href="#4-异步回调" class="headerlink" title="4. 异步回调"></a>4. 异步回调</h2><p>A调用B后，该干啥干啥，B通知A已完成后，再继续处理该任务的后续任务。</p>
+<p>这种模型是本文主要想说的。</p>
+<h1 id="异步回调"><a href="#异步回调" class="headerlink" title="异步回调"></a>异步回调</h1><p>我们从逻辑上分析一下，A调用B时，需要告诉B哪些东西。</p>
+<ol>
+<li>B需要知道任务结束后通知谁，所以A需要告知B，完成后需要执行的过程f</li>
+<li>A要告诉B做什么事情，所以至少需要指定调用参数arg</li>
+</ol>
+<p>所以，常见的异步回调框架，比如<code>libuv(c)</code>，<code>vertx(java)</code>，<code>nodejs</code>，函数签名大多是：<code>功能(参数, 回调函数)</code>。</p>
+<p>例如</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">db.find(<span class="string">'select * from xx'</span>, [], resultHandler);</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">resultHandler</span>(<span class="params">err, rows</span>) </span>&#123;</div><div class="line">  <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里的f就是<code>resultHandler</code>，arg就是<code>&#39;select * from xx&#39;, []</code>。</p>
+<p>但是，从语法上，没有人能保证这个调用真的跑到数据库里取回结果。比如在单元测试时，find函数可能会返回一堆预定义的数据。这样的过程显然不是“异步”的。</p>
+<p>那么，如下find函数实现做法，能算“异步”吗？</p>
+<ol>
+<li>把接收到的参数和函数打包到一个对象里</li>
+<li>传到某个FIFO队列里</li>
+<li>一组线程池消费这个队列，然后执行Thread.sleep 10s，然后用预定义的数据调用传进来的函数（resultHandler）</li>
+</ol>
+<p>emmmmm……</p>
+<p>这样肯定也不是。因为这种做法本质上和直接sleep 10s没有任何区别。此处，把sleep 10s换成其他阻塞IO（比如write/read）是一模一样的。</p>
+<p>但是这种做法已经比较接近了。</p>
+<h1 id="真正的异步"><a href="#真正的异步" class="headerlink" title="真正的异步"></a>真正的异步</h1><h2 id="定时器"><a href="#定时器" class="headerlink" title="定时器"></a>定时器</h2><p>我们先不管IO。<br>如果你想实现一个异步的“sleep”函数，你会怎么做？</p>
+<p>我们能从硬件拿到的只有当前时间，那么除了真的<code>Thread.sleep</code>还有别的方法吗？答案是没有。但是，等待的方式可以完全不一样。</p>
+<p>假设，我们想在12:00开始等待10分钟。我们实际上告诉等待线程的，其实是“我们想最早在12:10收到回调”。等待线程可以选择每隔几毫秒检查一次当前时间，然后在时机合适时触发回调。</p>
+<p>可能有人想说，这tm不还是总共sleep了10分钟吗，有什么区别？</p>
+<p>这种情况下没有任何区别，但是如果你有两个定时任务呢？</p>
+<p>还是假设我们现在是12:00。一个任务需要sleep 10分钟，另一个任务需要sleep 15分钟。按照之前的做法，需要占用两个线程。而现在只需要占用一个线程。如果任务数量继续往上增加，比如10000个任务，老做法需要占用10000个线程，而新做法依然只需要占用1个线程。</p>
+<p>当然我们可以做的好一点，利用中断。比如第一个任务sleep10分钟，那么线程就直接sleep 10分钟。第二个任务在12:01分进来，只要sleep 5分钟。那么就可以中断线程，然后sleep5分钟。触发第二个任务回调后，再sleep4分钟，触发第一个任务回调。不过两者本质上是差不多的。</p>
+<h2 id="IO"><a href="#IO" class="headerlink" title="IO"></a>IO</h2><p>从“定时器”的例子里看到，只有一个线程放在那死循环，就可以完成成百上千个任务。原理是“仅当任务完成时，触发对应的任务回调”。</p>
+<p>放到通用的IO，这个道理也是一样的（其实定时器也是IO的一种）。</p>
+<p>IO的正常事件只有两个：1.可读，2.可写。异常事件通常是连接异常、连接断开、资源问题等。</p>
+<p>按定时器的原理，异步IO原理可以扩展为：“仅当事件触发时，才进行回调”。</p>
+<p>这些在应用层是无法感知的。比如说，写缓冲没满，那么fd是可写的；读缓冲有数据，那么fd是可读的。但是应用层感知不到网卡队列。所以这些事情只能让内核来做了。</p>
+<h1 id="Linux-Epoll"><a href="#Linux-Epoll" class="headerlink" title="Linux Epoll"></a>Linux Epoll</h1><p>以往的select和poll，本质是轮询fd，看是fd是否可读或者可写等。原理就是遍历指定的几个fd，检查它们的可读写状态，然后告诉应用层。select要做两次数据拷贝，poll做一次。<br>select和poll其实也是异步，只不过需要不断轮询，而且复杂度都是O(n)，比较慢。</p>
+<p>Epoll的出现解决了几乎所有select和poll的缺点。当事件触发时，会直接告诉epoll事件已触发，在查询事件时（epoll_wait），只需要拷贝对应的链表而无需轮询。</p>
+<p>但是，epoll不接收回调函数，它只是通知你fd事件激活。当事件激活后，你需要自己去调用对应的回调。所以，你仍然需要自己写一个死循环不停调用epoll_wait。</p>
+<p>有人可能不理解，为什么死循环不停调用就是异步了？这个线程不还是被“阻塞”了吗？</p>
+<p>有这种问题说明你对“阻塞”理解完全错误。阻塞并不是说“下面的代码还没有被执行”。CPU一条条指令执行下来，如果你写了一个死循环，而且有一个cpu核心就是钻牛角尖似的不停执行，那这就不是“阻塞”。阻塞是说，cpu目前已经不执行你这段代码了，但是下面的代码还没有被执行。比如你调用了阻塞版本的<code>write</code>，然后对端没有读取，那么线程就阻塞在那里，没有cpu会去执行后面的代码。</p>
+<h1 id="Epoll也会“阻塞”？"><a href="#Epoll也会“阻塞”？" class="headerlink" title="Epoll也会“阻塞”？"></a>Epoll也会“阻塞”？</h1><p>epoll_wait允许传一个超时时间。如果超过了这个时间还没有事件发生，会返回给你一个空list。也就是说，epoll也是可以“阻塞”线程的。但是我们不认为程序是“阻塞”的。因为，当epoll阻塞线程时，这时并没有任何事件需要处理。就像下面这两段程序：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Thread.sleep(1000);</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">long start = System.currentTimeMillis();</div><div class="line">while (System.currentTimeMillis() - start &gt; 1000);</div></pre></td></tr></table></figure>
+<p>如果当作黑盒，两者效果是一模一样的。那么与其狂转cpu，还不如等着好了。我们之前的“定时器”示例也是如此，还不懂的话用那个例子思考一下，应该是能理解的。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/program/" rel="tag"># program</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/21/copy-menhera/" rel="next" title="临摹menhera酱">
+                <i class="fa fa-chevron-left"></i> 临摹menhera酱
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="https://avatars3.githubusercontent.com/u/10825968"
+              alt="wkgcass" />
+          
+            <p class="site-author-name" itemprop="name">wkgcass</p>
+            <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives">
+            
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/wkgcass" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>GitHub</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是异步IO"><span class="nav-number">1.</span> <span class="nav-text">什么是异步IO</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-阻塞"><span class="nav-number">1.1.</span> <span class="nav-text">1. 阻塞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-轮询"><span class="nav-number">1.2.</span> <span class="nav-text">2. 轮询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-阻塞回调"><span class="nav-number">1.3.</span> <span class="nav-text">3. 阻塞回调</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-异步回调"><span class="nav-number">1.4.</span> <span class="nav-text">4. 异步回调</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异步回调"><span class="nav-number">2.</span> <span class="nav-text">异步回调</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#真正的异步"><span class="nav-number">3.</span> <span class="nav-text">真正的异步</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#定时器"><span class="nav-number">3.1.</span> <span class="nav-text">定时器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IO"><span class="nav-number">3.2.</span> <span class="nav-text">IO</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-Epoll"><span class="nav-number">4.</span> <span class="nav-text">Linux Epoll</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Epoll也会“阻塞”？"><span class="nav-number">5.</span> <span class="nav-text">Epoll也会“阻塞”？</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">wkgcass</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" href="https://hexo.io">Hexo</a></div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+    <script type="text/javascript">
+    (function(){
+      var appid = 'cytcQnVQe';
+      var conf = '0c1c7336e6b1c53ffc3edaeb1d538ef7';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){
+        window.changyan.api.config({appid:appid,conf:conf})});
+      }
+    })();
+    </script>
+    <script type="text/javascript" src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
