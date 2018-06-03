@@ -102,7 +102,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/06/03/nonblock/index.html">
 <meta property="og:site_name" content="wkgcass.blogs">
 <meta property="og:description" content="什么是异步IO从API上来说，是一组非阻塞的IO API，不过这是废话。 换个角度：程序不因为IO调用而被阻塞，就可以说程序是异步的。 要理解这个回答，首先要知道什么是“异步”。 编程或者架构模型有4种。 1. 阻塞A调用B后，一直等着B返回结果。 这是最广泛使用，也是最简单的一种模型。普通的函数调用、传统的阻塞IO都是如此。 2. 轮询A调用B后，A不断去B那里查询返回结果。 这在耗时任务中经常">
-<meta property="og:updated_time" content="2018-06-03T09:52:13.517Z">
+<meta property="og:updated_time" content="2018-06-03T10:01:47.960Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="异步IO是什么？">
 <meta name="twitter:description" content="什么是异步IO从API上来说，是一组非阻塞的IO API，不过这是废话。 换个角度：程序不因为IO调用而被阻塞，就可以说程序是异步的。 要理解这个回答，首先要知道什么是“异步”。 编程或者架构模型有4种。 1. 阻塞A调用B后，一直等着B返回结果。 这是最广泛使用，也是最简单的一种模型。普通的函数调用、传统的阻塞IO都是如此。 2. 轮询A调用B后，A不断去B那里查询返回结果。 这在耗时任务中经常">
@@ -201,7 +201,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Home
+            Startseite
           </a>
         </li>
       
@@ -221,7 +221,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            Categories
+            Kategorien
           </a>
         </li>
       
@@ -285,7 +285,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">Veröffentlicht am</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-03T15:44:44+08:00">
                 2018-06-03
@@ -306,7 +306,7 @@
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">In</span>
+                <span class="post-meta-item-text">in</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -410,6 +410,8 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Thread.sleep(1000);</div></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">long start = System.currentTimeMillis();</div><div class="line">while (System.currentTimeMillis() - start &gt; 1000);</div></pre></td></tr></table></figure>
 <p>如果当作黑盒，两者效果是一模一样的。那么与其狂转cpu，还不如等着好了。我们之前的“定时器”示例也是如此，还不懂的话用那个例子思考一下，应该是能理解的。</p>
+<h1 id="线程池的选择"><a href="#线程池的选择" class="headerlink" title="线程池的选择"></a>线程池的选择</h1><p>阻塞IO的情况下，有人会说什么“偏IO的用cpu * 2，偏CPU的用cpu + 1”。这些都是扯淡。举个例子，16核cpu，你开了32线程。结果这时32个客户端都不写不读数据，那服务就卡死了。这时你发现不行，加到128个线程，结果有时候128个客户端都在请求，cpu跑满，瞬间卡死。所以阻塞IO的情况下，你设置多少都没用。</p>
+<p>看了上文，你应该能理解，非阻塞IO的情况下，如果有负载，那么程序的每个线程都是工作的，所以线程池线程数量等于CPU数即可。多了就会有不必要的上下文切换，少了就用不上cpu。</p>
 
       
     </div>
@@ -449,6 +451,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/06/03/copy-okita/" rel="prev" title="临摹冲田总司">
+                临摹冲田总司 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -504,10 +510,10 @@
       
         <ul class="sidebar-nav motion-element">
           <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            Table of Contents
+            Inhaltsverzeichnis
           </li>
           <li class="sidebar-nav-overview" data-target="site-overview">
-            Overview
+            Übersicht
           </li>
         </ul>
       
@@ -530,8 +536,8 @@
             
               <a href="/archives">
             
-                <span class="site-state-item-count">6</span>
-                <span class="site-state-item-name">posts</span>
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">Artikel</span>
               </a>
             </div>
           
@@ -542,7 +548,7 @@
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
                 <span class="site-state-item-count">3</span>
-                <span class="site-state-item-name">categories</span>
+                <span class="site-state-item-name">Kategorien</span>
               </a>
             </div>
           
@@ -553,7 +559,7 @@
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
                 <span class="site-state-item-count">4</span>
-                <span class="site-state-item-name">tags</span>
+                <span class="site-state-item-name">Tags</span>
               </a>
             </div>
           
@@ -595,7 +601,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是异步IO"><span class="nav-number">1.</span> <span class="nav-text">什么是异步IO</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-阻塞"><span class="nav-number">1.1.</span> <span class="nav-text">1. 阻塞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-轮询"><span class="nav-number">1.2.</span> <span class="nav-text">2. 轮询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-阻塞回调"><span class="nav-number">1.3.</span> <span class="nav-text">3. 阻塞回调</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-异步回调"><span class="nav-number">1.4.</span> <span class="nav-text">4. 异步回调</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异步回调"><span class="nav-number">2.</span> <span class="nav-text">异步回调</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#真正的异步"><span class="nav-number">3.</span> <span class="nav-text">真正的异步</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#定时器"><span class="nav-number">3.1.</span> <span class="nav-text">定时器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IO"><span class="nav-number">3.2.</span> <span class="nav-text">IO</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-Epoll"><span class="nav-number">4.</span> <span class="nav-text">Linux Epoll</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Epoll也会“阻塞”？"><span class="nav-number">5.</span> <span class="nav-text">Epoll也会“阻塞”？</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是异步IO"><span class="nav-number">1.</span> <span class="nav-text">什么是异步IO</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-阻塞"><span class="nav-number">1.1.</span> <span class="nav-text">1. 阻塞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-轮询"><span class="nav-number">1.2.</span> <span class="nav-text">2. 轮询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-阻塞回调"><span class="nav-number">1.3.</span> <span class="nav-text">3. 阻塞回调</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-异步回调"><span class="nav-number">1.4.</span> <span class="nav-text">4. 异步回调</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异步回调"><span class="nav-number">2.</span> <span class="nav-text">异步回调</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#真正的异步"><span class="nav-number">3.</span> <span class="nav-text">真正的异步</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#定时器"><span class="nav-number">3.1.</span> <span class="nav-text">定时器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IO"><span class="nav-number">3.2.</span> <span class="nav-text">IO</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-Epoll"><span class="nav-number">4.</span> <span class="nav-text">Linux Epoll</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Epoll也会“阻塞”？"><span class="nav-number">5.</span> <span class="nav-text">Epoll也会“阻塞”？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程池的选择"><span class="nav-number">6.</span> <span class="nav-text">线程池的选择</span></a></li></ol></div>
             
 
           </div>
@@ -628,7 +634,7 @@
 </div>
 
 
-  <div class="powered-by">Powered by <a class="theme-link" href="https://hexo.io">Hexo</a></div>
+  <div class="powered-by">Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a></div>
 
   <span class="post-meta-divider">|</span>
 
