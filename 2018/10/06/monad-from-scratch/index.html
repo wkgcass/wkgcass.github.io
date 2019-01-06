@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="monad," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="在交流中，有时候丢出一个“Monad”就可以把问题说清楚，但是我发现大多数人并不知道什么是monad，甚至有的没听说过。所以特此写一篇通俗易懂的文章来描述编程语言中的Monad。 读这篇文章前，你需要 写过java或c#（scala/kotlin等使用者估计也用过java，haskell/ml使用者估计早就知道monad是什么了，而只用过动态类型语言的，也许能理解本文的“是什么”，但不一定能理解“">
+<meta name="keywords" content="monad">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零认识 Monad">
+<meta property="og:url" content="http://yoursite.com/2018/10/06/monad-from-scratch/index.html">
+<meta property="og:site_name" content="wkgcass.blogs">
+<meta property="og:description" content="在交流中，有时候丢出一个“Monad”就可以把问题说清楚，但是我发现大多数人并不知道什么是monad，甚至有的没听说过。所以特此写一篇通俗易懂的文章来描述编程语言中的Monad。 读这篇文章前，你需要 写过java或c#（scala/kotlin等使用者估计也用过java，haskell/ml使用者估计早就知道monad是什么了，而只用过动态类型语言的，也许能理解本文的“是什么”，但不一定能理解“">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-10-06T13:29:57.789Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零认识 Monad">
+<meta name="twitter:description" content="在交流中，有时候丢出一个“Monad”就可以把问题说清楚，但是我发现大多数人并不知道什么是monad，甚至有的没听说过。所以特此写一篇通俗易懂的文章来描述编程语言中的Monad。 读这篇文章前，你需要 写过java或c#（scala/kotlin等使用者估计也用过java，haskell/ml使用者估计早就知道monad是什么了，而只用过动态类型语言的，也许能理解本文的“是什么”，但不一定能理解“">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/10/06/monad-from-scratch/"/>
+
+
+
+
+
+  <title>从零认识 Monad | wkgcass.blogs</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">wkgcass.blogs</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/06/monad-from-scratch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="wkgcass">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/10825968">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wkgcass.blogs">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零认识 Monad</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-06T21:29:22+08:00">
+                2018-10-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-comment-o"></i>
+              </span>
+              
+                <a href="/2018/10/06/monad-from-scratch/#SOHUCS" itemprop="discussionUrl">
+                  <span id="changyan_count_unit" class="post-comments-count hc-comment-count" data-xid="2018/10/06/monad-from-scratch/" itemprop="commentsCount"></span>
+                </a>
+              
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在交流中，有时候丢出一个“Monad”就可以把问题说清楚，但是我发现大多数人并不知道什么是monad，甚至有的没听说过。所以特此写一篇通俗易懂的文章来描述编程语言中的Monad。</p>
+<h2 id="读这篇文章前，你需要"><a href="#读这篇文章前，你需要" class="headerlink" title="读这篇文章前，你需要"></a>读这篇文章前，你需要</h2><ol>
+<li>写过java或c#（scala/kotlin等使用者估计也用过java，haskell/ml使用者估计早就知道monad是什么了，而只用过动态类型语言的，也许能理解本文的“是什么”，但不一定能理解“为什么”）</li>
+<li>知道何为“泛型”</li>
+<li>了解过异步/非阻塞IO编程</li>
+<li>读前可以百度（嗯，这个没必要谷歌）查一查“幺半群”、“幺元”，大概花2分钟的时间即可</li>
+<li>[可选]了解一些范畴、对象、态射，大概5分钟的时间即可</li>
+</ol>
+<p>本文将以java代码，来构造一个“合格”的Monad，以说清Monad的what/why/how。</p>
+<h2 id="What-Monad是什么"><a href="#What-Monad是什么" class="headerlink" title="What - Monad是什么"></a>What - Monad是什么</h2><h3 id="图解Monad"><a href="#图解Monad" class="headerlink" title="图解Monad"></a>图解Monad</h3><p>首先给大家一个直观的感受，形象的描述一下Monad能干什么，以方便后续的理解：</p>
+<p>这是类型T</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">T</span><br></pre></td></tr></table></figure>
+<p>Monad类似于“罐子”、“箱子”一类的东西，不过为了更加形象，我们把它比做 <strong>上下都开口的圆桶</strong> （后面你就知道为什么了）。</p>
+<p>我们可以通过一个函数，把<code>T类型的对象</code>装到Monad里面。通常我们把这个函数称作<code>unit</code>或者<code>return</code>。由于<code>return</code>是一个java关键字，所以后文我们用<code>unit</code>来称呼这个函数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">                Monad---+</span><br><span class="line">                |       |</span><br><span class="line">                |       |</span><br><span class="line">T   ------&gt;         T   |</span><br><span class="line">                |       |</span><br><span class="line">                |       |</span><br><span class="line">                +-------+</span><br><span class="line"></span><br><span class="line">                 Monad&lt;T&gt;</span><br><span class="line">          图1</span><br></pre></td></tr></table></figure>
+<p>我们得到了第一个Monad，<code>Monad&lt;T&gt;</code>。</p>
+<p>编程语言里都有函数，我们可以传入一种变量，得到另一种变量。Monad也是如此，我们可以给Monad一种特殊的函数，这种函数接受前一个Monad包含的类型，并返回一个包含了另一类型的新的Monad。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">                                      新Monad</span><br><span class="line">                          +-----------------------------+</span><br><span class="line">                          |                             |</span><br><span class="line">                Monad---+ |                 Monad---+   |</span><br><span class="line">                |       | |                 |       |   |</span><br><span class="line">                |       +-|-----------------+       |   |</span><br><span class="line">T   ------&gt;         T     |   T -&gt; Monad&lt;U&gt;     N   |   |</span><br><span class="line">                |       +-|-----------------+       |   |</span><br><span class="line">                |       | |                 |       |   |</span><br><span class="line">                +-------+ |                 +-------+   |</span><br><span class="line">                          |                             |</span><br><span class="line">                          +-----------------------------+</span><br><span class="line"></span><br><span class="line">                       整体的类型为 Monad&lt;U&gt;</span><br><span class="line">                               图2</span><br></pre></td></tr></table></figure>
+<p>这样，我们得到了一个新的Monad，即<code>Monad&lt;U&gt;</code>。</p>
+<p>我们可以对这个Monad再进行一次、两次、…、无数次上面的操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">                Monad---+                Monad---+                Monad---+                                    Monad---+</span><br><span class="line">                |       |                |       |                |       |                                    |       |</span><br><span class="line">                |       +----------------+       +----------------+       +------------- ... ------------------+       |</span><br><span class="line">T   ------&gt;         T      T -&gt; Monad&lt;U&gt;     U     U -&gt; Monad&lt;V&gt;      V       V -&gt; ...   ...  ... -&gt; Monad&lt;N&gt;      N   |</span><br><span class="line">                |       +----------------+       +----------------+       +------------- ... ------------------+       |</span><br><span class="line">                |       |                |       |                |       |                                    |       |</span><br><span class="line">                +-------+                +-------+                +-------+                                    +-------+</span><br><span class="line"></span><br><span class="line">                                                           Monad&lt;N&gt;</span><br><span class="line">                                                             图3</span><br></pre></td></tr></table></figure>
+<p>这些Monads被某些“绑定函数”绑在一起，形成了最终的<code>Monad&lt;N&gt;</code>，就像一个管道一样。<br>此时务必注意，上面我们讨论的都是“类型”，并不是具体的“对象”。</p>
+<p>并且，上面所谓的“Monad”实际上是指“某种Monad”。</p>
+<p>我们常听到的、文章里使用的Monad，并非 <strong>一种</strong> 类型，而是“具有上述特征的” <strong>一类</strong> 类型。</p>
+<h3 id="代码描述"><a href="#代码描述" class="headerlink" title="代码描述"></a>代码描述</h3><p>我们讨论的是Haskell中的Monad，但是相信不少人并不熟悉Haskell，我们直接用java来描述Monad的定义。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 此处我们暂时不讨论Applicative和Functor</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyMonad</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">MyApplicative</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> &lt;X&gt; <span class="function">MyMonad&lt;X&gt; <span class="title">unit</span><span class="params">(X x)</span> </span>&#123; ... &#125; <span class="comment">// return</span></span><br><span class="line">  &lt;U&gt; <span class="function">MyMonad&lt;U&gt; <span class="title">bind</span><span class="params">(Function&lt;T, MyMonad&lt;U&gt;&gt; f)</span> </span>&#123; ... &#125; <span class="comment">// &gt;&gt;= // Function&lt;T, MyMonad&lt;U&gt;&gt; 即为 T -&gt; MyMonad&lt;U&gt;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的<code>unit</code>在haskell中被称作<code>return</code>，<code>bind</code>在haskell中记作<code>&gt;&gt;=</code>，读音为bind。</p>
+<p><code>unit</code>函数是个static函数，它接收<code>X</code>类型对象，并把它包裹在Monad里面，返回一个<code>MyMonad&lt;X&gt;</code>类型对象。<br><code>bind</code>方法接收一个“当前被包裹的类型”到“包裹了新类型的Monad类型”的函数，并返回新的Monad类型对象。</p>
+<p>unit函数的作用是将对象“放入”Monad中，但是怎么放还得看实现。</p>
+<p>bind方法的作用是将前一个Monad与后一个Monad进行绑定。这里说得比较抽象，实际上在代码中只存在前一个Monad，所谓的“后一个Monad”是在调用了绑定函数后生成出来的（即[[bind接收的那个函数的]函数体中]返回的Monad）。但是，在逻辑上，后一个Monad必然存在，所以这里才称之为“绑定”。</p>
+<p>此外，Monad还需要满足如下特性：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">unit(a).bind(k)           == k(a) // 幺元（左）</span><br><span class="line">m.bind(unit)              == m    // 幺元（右）</span><br><span class="line">m.bind(x -&gt; k(x).bind(h)) == m.bind(k).bind(h) // 长相比较奇怪的结合律</span><br></pre></td></tr></table></figure>
+<p>一、unit(a)再与某个函数k绑定，得到的结果应当与k(a)相等<br>二、某个monad的实例与unit绑定，得到的结果应当仍然是该实例本身<br>三、长相比较奇怪的结合律。说起它不得不提一句非常有名的话 ———— “Monad是自函子范畴上的幺半群”。</p>
+<h2 id="Why"><a href="#Why" class="headerlink" title="Why"></a>Why</h2><h3 id="为什么说Monad是自函子范畴上的幺半群"><a href="#为什么说Monad是自函子范畴上的幺半群" class="headerlink" title="为什么说Monad是自函子范畴上的幺半群"></a>为什么说Monad是自函子范畴上的幺半群</h3><p>不必觉得不明觉厉，很显然这句话就是瞎凑的，只不过凑得很巧妙罢了。</p>
+<h4 id="为什么是“自函子”“范畴”"><a href="#为什么是“自函子”“范畴”" class="headerlink" title="为什么是“自函子”“范畴”"></a>为什么是“自函子”“范畴”</h4><p>以MyMonad举例，不管再怎么bind，它也不会变成YourMonad，它永远都是MyMonad，只不过泛型类型在变化罢了，所以是自函子。<br>而“范畴”只是为了把讨论的目标从“MyMonad”提升到“Monad”罢了。</p>
+<p>此处务必注意，自函子范畴里的对象都是 <strong>函数类型</strong>，也就是说，当我们讨论幺半群的时候，这个幺半群里面的元素都是函数(类型)。</p>
+<h4 id="为什么是幺半群"><a href="#为什么是幺半群" class="headerlink" title="为什么是幺半群"></a>为什么是幺半群</h4><p>幺半群要满足什么条件？</p>
+<ol>
+<li>有幺元</li>
+<li>满足结合律</li>
+</ol>
+<p>unit函数即为幺元，unit函数签名是符合bind函数接受的函数的，并且在实现时需要满足限制的特性。</p>
+<p>我们假设这个幺半群的运算符为<code>⊕</code>。</p>
+<p>(M ⊕ N) ⊕ O == M ⊕ (N ⊕ O)</p>
+<p>一眼就能看出来，bind函数并不是<code>⊕</code>。但是，有它的影子在里面。<br>从图3可以看出，每两个连续的Monad只要不交换顺序，都可以自由地结合。此处的“结合律”并不在类型中体现，只是逻辑上的结合律。在上一部分的最后也给出了一个长相奇怪的结合律，这是需要写实现时自行遵守的。</p>
+<h3 id="为什么我们需要Monad"><a href="#为什么我们需要Monad" class="headerlink" title="为什么我们需要Monad"></a>为什么我们需要Monad</h3><p>我觉得这是非FP程序员感到最疑惑的，例如一个最简单的Monad实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class MyMonad&lt;T&gt; &#123;</span><br><span class="line">  private T t;</span><br><span class="line">  private MyMonad(T t) &#123; this.t = t; &#125;</span><br><span class="line">  static &lt;X&gt; MyMonad&lt;X&gt; unit(T t) &#123; return new Monad(t); &#125;</span><br><span class="line">  &lt;U&gt; MyMonad&lt;U&gt; bind(Function&lt;T, MyMonad&lt;U&gt;&gt; f) &#123; return f.apply(t); &#125;</span><br><span class="line">  boolean equals(MyMonad o) &#123; return t == o.t; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这的确没错，也没啥错误。但是让人觉得：？？？我要Monad何用？为何不直接个变量t，直接调函数？</p>
+<p>即使拓展到Maybe Monad（即java中的Optional），也会让人很无语：我就写个<code>if == null</code>的事，何必搞个Monad呢？<br>在上述情况，的确如此，Monad处境比较尴尬，最大的问题就是：没必要。何必多写那么长代码来实现一个很简单的功能呢？</p>
+<p>在异步编程中，无论是写C时候用的epoll，还是高层封装nodejs，或者java的NIO，总会有while循环来处理每个事件，我们通常称之为事件循环（eventloop）。<br>写代码时需要向循环中注册各种“回调函数”，它们将在对应事件触发时被调用。在开发时，显然会把重复逻辑抽出来放到单独的函数里供各处进行调用。而这个公共函数如果涉及事件循环的回调，那么则无法用<code>return</code>关键字返回内容，也无法控制流程，使得该函数执行完毕后才执行调用者的下一段代码。</p>
+<p>很多时候我们会将一个callback函数传入，这个函数接收异常或者结果，并继续执行后续内容。这在nodejs中非常常见，例如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">doSomething</span>(<span class="params">a, b, cb</span>) </span>&#123;</span><br><span class="line">  io.run(a, b, <span class="function"><span class="keyword">function</span>(<span class="params">err, res</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'io.run got result'</span>);</span><br><span class="line">    cb(err, res);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">doSomething(<span class="string">'abc'</span>, <span class="string">'def'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (err) &#123;</span><br><span class="line">    <span class="built_in">console</span>.error(<span class="string">'error!'</span>, err);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'success: %j'</span>, res);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这种写法比较繁琐，就像go语言一样，需要强制程序员显式处理error。此外还容易写出“回调地狱”。</p>
+<p>使用Monad可以完美地解决这两个问题。例如nodejs的Promise、vertx(java)的Future(注意，并不是java自带的Future)。此处以Future为例，通常代码会写成这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Future&lt;Result&gt; <span class="title">doSomething</span><span class="params">(String a, String b)</span> </span>&#123;</span><br><span class="line">  io.run(a, b).compose(res -&gt; &#123;</span><br><span class="line">    console.log(<span class="string">"io.run got result"</span>);</span><br><span class="line">    <span class="keyword">return</span> Future.succeededFuture(res);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">doSomething(<span class="string">'abc'</span>, <span class="string">'def'</span>).setHandler(r -&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (r.failed()) &#123;</span><br><span class="line">    logger.error(<span class="string">"error!"</span>, r.cause());</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    logger.info(<span class="string">"success: &#123;&#125;"</span>, r.result());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>需要多步处理时，只需一个个步骤地compose即可，若需要异常处理，在最后setHandler即可，相当于整个compose的内容都被try了起来，在<code>setHandler</code>里<code>catch</code>和<code>finally</code>。</p>
+<p>这里的<code>compose</code>即为<code>bind</code>，<code>succeededFuture</code>即为<code>unit</code>。</p>
+<p>这是我使用Monad最多的场景。</p>
+<h3 id="还有没有其他的场景？"><a href="#还有没有其他的场景？" class="headerlink" title="还有没有其他的场景？"></a>还有没有其他的场景？</h3><p>有。在后面会从“用途”的角度来介绍Monad。</p>
+<h2 id="How-如何使用Monad"><a href="#How-如何使用Monad" class="headerlink" title="How 如何使用Monad"></a>How 如何使用Monad</h2><h3 id="异步任务"><a href="#异步任务" class="headerlink" title="异步任务"></a>异步任务</h3><p>前面提到过，在java中最常用的就是异步任务对应的Monad。</p>
+<p>java中，可以使用vertx的Future与CompositeFuture。nodejs可以使用es6自带的Promise，或者第三方的高性能Promise实现：bluebird。scala里到处都是Monad，可能找一个非Monad的容器还挺难的。haskell就不用说了，你如果经常使用haskell写代码的话，肯定比我清楚。</p>
+<p>代码没什么可说的，只要遵循上面这些库的使用方法即可（对于java等语言，看方法名称觉得挺对的，然后能过编译，那基本就没啥问题了）。此处不必纠结于Monad，因为Monad实现是比Monad本身更加具体的，会有更多辅助函数，务必尽情地调用，不要拘泥于Monad。这里拿vertx的Future为例：</p>
+<p>比如说你现在想通过http访问某个资源，获取其内容，然后写入数据库。http访问是非Future实现，数据库访问是Future实现。业务逻辑可以这么写：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Future&lt;JsonObject&gt; <span class="title">getHttpBodyWrap</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">/* 执行步骤 1 */</span></span><br><span class="line">  Future&lt;JsonObject&gt; f = Future.future(); <span class="comment">// 新建一个空的future。</span></span><br><span class="line">  getHttpBody(GET, uri, r -&gt; &#123;</span><br><span class="line">    <span class="comment">// 这里是异步过程</span></span><br><span class="line">    <span class="comment">/* 执行步骤 4 */</span></span><br><span class="line">    <span class="keyword">if</span> (r.failed()) &#123;</span><br><span class="line">      f.fail(r.cause()); <span class="comment">// 当前future失败</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      f.complete(<span class="keyword">new</span> JsonObject(r.result())); <span class="comment">// 完成当前future</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="comment">/* 执行步骤 2 */</span></span><br><span class="line">  <span class="keyword">return</span> f; <span class="comment">// 把这个future返回出去</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Future&lt;?&gt; getAndSave() &#123;</span><br><span class="line">  <span class="comment">/* 执行步骤 3 */</span></span><br><span class="line">  <span class="keyword">return</span> getHttpBodyWrap().compose(json -&gt; <span class="comment">/* 执行步骤 5 */</span>db.save(json));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 执行开始 */</span></span><br><span class="line">getAndSave().setHandler(r -&gt; &#123;</span><br><span class="line">  <span class="comment">/* 执行步骤 6 */</span></span><br><span class="line">  <span class="comment">/* 执行结束 */</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>务必总是在执行的最后使用setHandler来检查或者处理异常，否则异常将被忽略，对排查问题很不利。不过，即使不设置setHandler，future也会不断执行下去。</p>
+<p>如果是http应用，可以在api层做异常处理，而整个应用内部不必关心异常（就像普通的同步代码，有异常就throw一样）。</p>
+<h3 id="从用途看Monad"><a href="#从用途看Monad" class="headerlink" title="从用途看Monad"></a>从用途看Monad</h3><p>现在我们都知道了，Monad并不是一种类型，而是具有某种特征的类型的集合。我们抽几种Monad来看看（java为例）：</p>
+<ul>
+<li>异步任务Monad：<code>Future&lt;T&gt;</code></li>
+<li>List Monad（没错，List也可以是Monad）：<code>List&lt;T&gt;</code></li>
+<li>Maybe Monad：<code>Optional&lt;T&gt;</code></li>
+</ul>
+<p>可以看出，对于Monad，由“用途”和“当前类型”组成。</p>
+<p>Future代表了异步任务，List表示列表，Optional代表“可空对象”。其泛型类型<code>&lt;T&gt;</code>表示当前这个Monad“里面”的类型。</p>
+<p>所以，“一种特定的Monad”对应了“一种特定的用途”。这也符合Monad的限制：当一个变量提升到某个Monad空间中后，它就再也不能从这个Monad空间里逃逸出来了（只使用Monad自己的函数，不使用特定实现的函数）。</p>
+<p>比如“异步任务”，既然它是异步的，那么在Future Monad对象建立的时间点，所有异步任务的“过程”都要被构建出来，但是很显然，其中任何一环的变量都还不确定，也就不可能在这个时间点将里面的变量取出。</p>
+<p>对于Optional，你只能在<code>flatMap</code>接收的函数里处理非空情形，强行取出并处理会有空指针的风险。</p>
+<p>这样，就有一个很大的问题。</p>
+<p>比如，程序从控制台读取一串文字，使用了Reader Monad，然后做了一大堆处理，处理完后其值可能为空，所以使用了Maybe Monad，然后你想把值输出到控制台，又要使用Writer Monad。由于变量没办法主动逃逸出来，所以处理会非常麻烦：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Reader&lt;String&gt; =&gt; Reader&lt;Maybe&lt;String&gt;&gt; =&gt; Reader&lt;Maybe&lt;Writer&lt;?&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+<p>这简直是灾难。。。</p>
+<p>当然，在一个过程式的语言中，这并不是什么问题，因为你随时都可以阻塞地处理各个任务，即使要求非阻塞，也可以直接抽象一个Async Monad（或者Future Monad），然后对于所有内存操作Monad都在最后取出结果做处理。但是Monad被描述的这么“严密”，肯定会有解决方案把？</p>
+<p>确实有，在haskell中解决方案被称为lift。但是在java/c#中由于类型系统的问题，无法实现该变换，但我们可以拙劣的模仿一下。</p>
+<p>比如你现在有个Maybe Monad，它的lift可以这么写：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MaybeT</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  Maybe&lt;T&gt; maybe;</span><br><span class="line">  MaybeT(Maybe&lt;T&gt; maybe) &#123;</span><br><span class="line">    <span class="keyword">this</span>.maybe = maybe;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">static</span> MaybeT&lt;T&gt; <span class="title">unit</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MaybeT(Maybe.unit(t));</span><br><span class="line">  &#125;</span><br><span class="line">  &lt;U&gt; <span class="function">MaybeT&lt;U&gt; <span class="title">bind</span><span class="params">(Function&lt;T, ReaderMaybe&lt;U&gt;&gt; f)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MaybeT(maybe.bind(x -&gt; f(x).get()));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">private</span> Maybe&lt;T&gt; <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.maybe;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Maybe</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="comment">/* ... */</span></span><br><span class="line">  <span class="function">MaybeT&lt;T&gt; <span class="title">lift</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Haskell的做法也比较相似，但因为语法糖和类型系统非常牛，所以没必要写的这么丑陋。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/monad/" rel="tag"># monad</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/03/copy-okita/" rel="next" title="临摹冲田总司">
+                <i class="fa fa-chevron-left"></i> 临摹冲田总司
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="SOHUCS"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="https://avatars3.githubusercontent.com/u/10825968"
+              alt="wkgcass" />
+          
+            <p class="site-author-name" itemprop="name">wkgcass</p>
+            <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives">
+            
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/wkgcass" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>GitHub</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#读这篇文章前，你需要"><span class="nav-number">1.</span> <span class="nav-text">读这篇文章前，你需要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#What-Monad是什么"><span class="nav-number">2.</span> <span class="nav-text">What - Monad是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#图解Monad"><span class="nav-number">2.1.</span> <span class="nav-text">图解Monad</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码描述"><span class="nav-number">2.2.</span> <span class="nav-text">代码描述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Why"><span class="nav-number">3.</span> <span class="nav-text">Why</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么说Monad是自函子范畴上的幺半群"><span class="nav-number">3.1.</span> <span class="nav-text">为什么说Monad是自函子范畴上的幺半群</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么是“自函子”“范畴”"><span class="nav-number">3.1.1.</span> <span class="nav-text">为什么是“自函子”“范畴”</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么是幺半群"><span class="nav-number">3.1.2.</span> <span class="nav-text">为什么是幺半群</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么我们需要Monad"><span class="nav-number">3.2.</span> <span class="nav-text">为什么我们需要Monad</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#还有没有其他的场景？"><span class="nav-number">3.3.</span> <span class="nav-text">还有没有其他的场景？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#How-如何使用Monad"><span class="nav-number">4.</span> <span class="nav-text">How 如何使用Monad</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#异步任务"><span class="nav-number">4.1.</span> <span class="nav-text">异步任务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#从用途看Monad"><span class="nav-number">4.2.</span> <span class="nav-text">从用途看Monad</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">wkgcass</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" href="https://hexo.io">Hexo</a></div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+    <script type="text/javascript">
+    (function(){
+      var appid = 'cytcQnVQe';
+      var conf = '0c1c7336e6b1c53ffc3edaeb1d538ef7';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      if (width < 960) {
+      window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){
+        window.changyan.api.config({appid:appid,conf:conf})});
+      }
+    })();
+    </script>
+    <script type="text/javascript" src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

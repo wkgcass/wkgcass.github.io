@@ -102,6 +102,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/12/10/monad/index.html">
 <meta property="og:site_name" content="wkgcass.blogs">
 <meta property="og:description" content="Monad对于很多人来说，“Monad”是一个“神奇”的概念。这个概念首先在数学中被提出，用来简化一些复杂定理的描述。后来在Haskell中被使用。而实际上，所有主流高级语言都有Monad，只不过不一定被明确的标注出来，例如：ES6的Promise、Java的Optional。本文会通俗的描述什么是Monad，以及如何定义和使用。 The Easy Way: 抽象和拆分 可以参考youtube这个">
+<meta property="og:locale" content="default">
 <meta property="og:updated_time" content="2017-12-10T05:29:46.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Monad">
@@ -153,7 +154,7 @@
 
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="">
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
 
   
   
@@ -201,7 +202,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Startseite
+            Home
           </a>
         </li>
       
@@ -221,7 +222,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            Kategorien
+            Categories
           </a>
         </li>
       
@@ -285,7 +286,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">Posted on</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-12-10T13:21:05+08:00">
                 2017-12-10
@@ -306,7 +307,7 @@
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">In</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -360,37 +361,37 @@
       
         <h1 id="Monad"><a href="#Monad" class="headerlink" title="Monad"></a>Monad</h1><p>对于很多人来说，“Monad”是一个“神奇”的概念。这个概念首先在数学中被提出，用来简化一些复杂定理的描述。后来在Haskell中被使用。而实际上，所有主流高级语言都有Monad，只不过不一定被明确的标注出来，例如：ES6的Promise、Java的Optional。本文会通俗的描述什么是Monad，以及如何定义和使用。</p>
 <h2 id="The-Easy-Way-抽象和拆分"><a href="#The-Easy-Way-抽象和拆分" class="headerlink" title="The Easy Way: 抽象和拆分"></a>The Easy Way: 抽象和拆分</h2><blockquote>
-<p>可以参考youtube<a href="https://www.youtube.com/watch?v=ZhuHCtR3xq8" target="_blank" rel="external">这个视频</a></p>
+<p>可以参考youtube<a href="https://www.youtube.com/watch?v=ZhuHCtR3xq8" target="_blank" rel="noopener">这个视频</a></p>
 </blockquote>
 <h3 id="普通的函数复合"><a href="#普通的函数复合" class="headerlink" title="普通的函数复合"></a>普通的函数复合</h3><p>假设我们现在有三个类型a、b、c。</p>
 <p>现在定义两个函数，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">f :: a -&gt; b</div><div class="line">g :: b -&gt; c</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">f :: a -&gt; b</span><br><span class="line">g :: b -&gt; c</span><br></pre></td></tr></table></figure>
 <p>可能有人不理解这组符号的含义。<code>f :: a -&gt; b</code> 指的是：f具有类型<code>a -&gt; b</code>。其中<code>a -&gt; b</code>指的是一个函数，接收a类型的参数，返回b类型的参数。</p>
 <p>用java的话来说，<code>f :: a -&gt; b</code> 就相当于</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;A, B&gt; <span class="function">B <span class="title">f</span><span class="params">(A a)</span></span>;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;A, B&gt; <span class="function">B <span class="title">f</span><span class="params">(A a)</span></span>;</span><br></pre></td></tr></table></figure>
 <p>后面我们都以haskell写法，也就是<code>f :: a -&gt; b</code>来做描述。</p>
 <p>我们都知道，函数可以复合。比如我现在有一个值x，类型为a，我就可以调用<code>f x</code>，得到一个类型为<code>b</code>的值，记作y。然后我调用<code>g y</code>，得到一个类型为<code>c</code>的值，记作z。假如我只想得到z，我可以把f和g复合起来，从而忽略中间值y。</p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="title">h</span> = g . f          <span class="comment">-- h = g (f x)</span></div><div class="line"><span class="title">z</span> = h x</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">h</span> = g . f          <span class="comment">-- h = g (f x)</span></span><br><span class="line"><span class="title">z</span> = h x</span><br></pre></td></tr></table></figure>
 <p>所以，如果我们想把两个函数拼起来，很简单，只要用<code>.</code>号即可。这解决了编程过程中的一个问题：逻辑拆分。将一个大逻辑拆分成小逻辑，然后再用<code>.</code>把这些小逻辑串起来。</p>
 <hr>
 <h3 id="返回“在某个空间里的数据类型”的函数的复合"><a href="#返回“在某个空间里的数据类型”的函数的复合" class="headerlink" title="返回“在某个空间里的数据类型”的函数的复合"></a>返回“在某个空间里的数据类型”的函数的复合</h3><p>我们把函数和类型拓展一下：</p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="title">f</span> :: a -&gt; m b</div><div class="line"><span class="title">g</span> :: b -&gt; m c</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">f</span> :: a -&gt; m b</span><br><span class="line"><span class="title">g</span> :: b -&gt; m c</span><br></pre></td></tr></table></figure>
 <p>现在我们有两个函数，一个接收a类型，并返回<code>m b</code>类型。什么是<code>f :: a -&gt; m b</code>？这在java中没有对应，因为java的类型系统不支持<code>kind</code>。但是如果一定要写的话，可以写成这样：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;A,B,M&gt; <span class="function">M&lt;B&gt; <span class="title">f</span><span class="params">(A a)</span></span>;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;A,B,M&gt; <span class="function">M&lt;B&gt; <span class="title">f</span><span class="params">(A a)</span></span>;</span><br></pre></td></tr></table></figure>
 <p><code>B</code>作为<code>M</code>的类型参数，也可以说，<code>B</code>在<code>M</code>空间里。</p>
 <p>现在我们再定义两个函数：</p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">\x -&gt; f x        (lambda <span class="number">1</span>)</div><div class="line">\y -&gt; g y        (lambda <span class="number">2</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\x -&gt; f x        (lambda <span class="number">1</span>)</span><br><span class="line">\y -&gt; g y        (lambda <span class="number">2</span>)</span><br></pre></td></tr></table></figure>
 <p>很显然，lambda 1 返回<code>m x</code>，lambda 2 接收<code>y</code>，而非<code>m y</code>，所以这两个函数没有办法简单的使用之前提到的<code>.</code>进行复合。我们在这里给出一个新的符号：bind: <code>&gt;&gt;=</code></p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">\x -&gt; f x &gt;&gt;= \y -&gt; g y</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\x -&gt; f x &gt;&gt;= \y -&gt; g y</span><br></pre></td></tr></table></figure>
 <p>可以看到<code>\y -&gt; g y</code>除了调用<code>g</code>外什么也没做，所以我们可以直接将其简写为<code>g</code></p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">\x -&gt; f x &gt;&gt;= g</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\x -&gt; f x &gt;&gt;= g</span><br></pre></td></tr></table></figure>
 <p>但是左边的<code>\x -&gt; f x</code>并不能进行合并。因为我们必须要一个<code>x</code>作为参数传入，即：</p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">\x -&gt; (f x &gt;&gt;= g)</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\x -&gt; (f x &gt;&gt;= g)</span><br></pre></td></tr></table></figure>
 <p>于是，我们得到了一个运算符<code>&gt;&gt;=</code>。让我们看看它的类型签名。</p>
 <p>这是一个二元运算符，所以接收两个参数，并会返回一个结果：</p>
 <p>接收: 1) <code>f x</code> 2) <code>g</code>，即: 1) <code>m x</code> 2) <code>y -&gt; m y</code><br>返回: <code>m y</code> （原因可能没有那么直观，这里描述下。因为我们想把两个函数复合起来，复合的结果一定是后一个函数的返回结果，所以这个运算符的返回类型一定是后一个函数的返回类型）</p>
 <p>根据lambda的阿尔法变换规则，我们可以随意修改参数名称，我们写得好看一些，可以是这样：</p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;= ::  m a -&gt; (a -&gt; m b) -&gt; m b</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;= ::  m a -&gt; (a -&gt; m b) -&gt; m b</span><br></pre></td></tr></table></figure>
 <p>到此，monad中最重要的一个运算符<code>&gt;&gt;= (bind)</code>被我们“推”出来了。</p>
 <hr>
 <p>Monad的bind，和普通的函数复合，想要做的事情是一样的。了解了这一点，Monad的理解上就没什么难度了。</p>
@@ -408,7 +409,7 @@
 <h3 id="幺半群-Monoid"><a href="#幺半群-Monoid" class="headerlink" title="幺半群 Monoid"></a>幺半群 Monoid</h3><p>有一个运算符<code>*</code>，作用在一个集合S上。<br>1) 对S中任意的三个元素a、b、c，都有： <code>(a * b) * c = a * (b * c)</code><br>2) S中存在e，使得任意S中的元素a，都有：<code>(a * e) = (e * a) = a</code></p>
 <p>满足上述条件的运算符和集合，就是一个幺半群。</p>
 <p>实际上，对于幺半群，在Haskell中也有相应的定义：</p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="type">Monoid</span> m <span class="keyword">where</span></span></div><div class="line">  mempty :: m</div><div class="line">  mappend :: m -&gt; m -&gt; m</div><div class="line">  mconcat :: [m] -&gt; m</div><div class="line">  mconcat = foldr mappend mempty</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="type">Monoid</span> m <span class="keyword">where</span></span></span><br><span class="line">  mempty :: m</span><br><span class="line">  mappend :: m -&gt; m -&gt; m</span><br><span class="line">  mconcat :: [m] -&gt; m</span><br><span class="line">  mconcat = foldr mappend mempty</span><br></pre></td></tr></table></figure>
 <p>mempty返回幺元，就是那个e<br>mappend对应幺半群中的那个运算符<br>mconcat是haskell库的需要，已经有默认实现，通常不需要我们关注。</p>
 <p>除了类型上要满足，还需要程序保证：</p>
 <ol>
@@ -428,24 +429,24 @@
 <p>函数：<code>a -&gt; b</code><br>函子：<code>t a -&gt; t b</code></p>
 <p>其实函子很好理解，例如map就是一种函子，接收一种List，返回另一种List</p>
 <p>在Haskell中，函子是这样定义的：</p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="type">Functor</span> f <span class="keyword">where</span></span></div><div class="line">    fmap :: (a -&gt; b) -&gt; f a -&gt; f b</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="type">Functor</span> f <span class="keyword">where</span></span></span><br><span class="line">    fmap :: (a -&gt; b) -&gt; f a -&gt; f b</span><br></pre></td></tr></table></figure>
 <p>很清晰，fmap这个函数接收一个把a映射到b的函数，并接收一个带有a类型的Functor实例，返回一个带有b类型的Functor实例。</p>
 <p>在面向对象编程中，我们通常会有<code>list.map(a-&gt;a.toString())</code>之类的写法，这两者是完全相同的。其中的list就是<code>f a</code>，<code>a -&gt; a.toString</code>就是<code>(a -&gt; b)</code>，返回的结果就是<code>f b</code>。</p>
 <h3 id="Applicative"><a href="#Applicative" class="headerlink" title="Applicative"></a>Applicative</h3><p>除了上述两个我们需要了解以外，还有一样东西我们需要了解一下：Applicative</p>
 <p>在上面的Functor中，我们有处理包装起来的数据的能力。但是如果函数也被包装起来，我们就需要Applicative。</p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> (<span class="type">Functor</span> <span class="title">f</span>) =&gt; <span class="type">Applicative</span> f <span class="keyword">where</span></span>  </div><div class="line">    pure :: a -&gt; f a  </div><div class="line">    (&lt;*&gt;) :: f (a -&gt; b) -&gt; f a -&gt; f b</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> (<span class="type">Functor</span> <span class="title">f</span>) =&gt; <span class="type">Applicative</span> f <span class="keyword">where</span></span>  </span><br><span class="line">    pure :: a -&gt; f a  </span><br><span class="line">    (&lt;*&gt;) :: f (a -&gt; b) -&gt; f a -&gt; f b</span><br></pre></td></tr></table></figure>
 <p>函数pure将任意一种类型的值包装到Applicative的实例中。</p>
 <p>函数<code>&lt;*&gt;</code>接收包装起来的函数，和一个包装起来的数据，最终返回包装起来的另一种数据。</p>
 <p>一个很有效的应用场景是<code>Maybe</code>，在java中对应了Optional。这里拿Maybe来讲。</p>
 <p>Maybe可以有两类数据类型，一种是<code>Just a</code>，这种数据类型包装了一个值；另一种是<code>Nothing</code>，表示没有值在其中。<br>对一个Maybe类型做操作时，若每个操作都判断是Just还是Nothing未免太过麻烦（就像java中，每个操作都判断一次null值）。使用Applicative会让代码清晰很多。</p>
 <p>Maybe的Applicative实现：由于实现Applicative首先要实现Functor，所以这里给出两个instance。</p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">instance</span> <span class="type">Functor</span> <span class="type">Maybe</span> <span class="keyword">where</span></span>  </div><div class="line">    fmap f (<span class="type">Just</span> x) = <span class="type">Just</span> (f x)  </div><div class="line">    fmap f <span class="type">Nothing</span> = <span class="type">Nothing</span>  </div><div class="line"></div><div class="line"><span class="class"><span class="keyword">instance</span> <span class="type">Applicative</span> <span class="type">Maybe</span> <span class="keyword">where</span></span>  </div><div class="line">    pure = <span class="type">Just</span>  </div><div class="line">    <span class="type">Nothing</span> &lt;*&gt; _ = <span class="type">Nothing</span>  </div><div class="line">    (<span class="type">Just</span> f) &lt;*&gt; something = fmap f something</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">instance</span> <span class="type">Functor</span> <span class="type">Maybe</span> <span class="keyword">where</span></span>  </span><br><span class="line">    fmap f (<span class="type">Just</span> x) = <span class="type">Just</span> (f x)  </span><br><span class="line">    fmap f <span class="type">Nothing</span> = <span class="type">Nothing</span>  </span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">instance</span> <span class="type">Applicative</span> <span class="type">Maybe</span> <span class="keyword">where</span></span>  </span><br><span class="line">    pure = <span class="type">Just</span>  </span><br><span class="line">    <span class="type">Nothing</span> &lt;*&gt; _ = <span class="type">Nothing</span>  </span><br><span class="line">    (<span class="type">Just</span> f) &lt;*&gt; something = fmap f something</span><br></pre></td></tr></table></figure>
 <p>可以看到，如果遇到了Nothing，那么不管后面传什么，最终都返回Nothing。仅当拿到Just时才会进行动作。</p>
 <p>有了Maybe，我们就可以清晰明了的书写代码，而不用关注空值，也不用关心空函数。</p>
 <h2 id="回到Monad"><a href="#回到Monad" class="headerlink" title="回到Monad"></a>回到Monad</h2><p>有了上面这些基础，那么到底什么是Monad呢？</p>
 <p>回想下Applicative，事实上，我们写代码时还是会有些不舒服：实际上，我们通常关注的入参主要是普通的值，而出参是包装起来的值。例如上面的Maybe，我们对于入参只关心“有值”的情况，但出参时，可能值会变得不合法，我们会给出<code>Nothing</code>。这在Functor或Applicative中都没办法做到。</p>
 <p>Monad解决了这一点，它和Functor非常相近，只不过实际做动作的函数会接收一个值，并返回一个包装起来的值。</p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> (<span class="type">Applicative</span> <span class="title">m</span>) =&gt; <span class="type">Monad</span> m <span class="keyword">where</span></span></div><div class="line">    return :: a -&gt; m a</div><div class="line">    (&gt;&gt;=) :: m a -&gt; (a -&gt; m b) -&gt; m b</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> (<span class="type">Applicative</span> <span class="title">m</span>) =&gt; <span class="type">Monad</span> m <span class="keyword">where</span></span></span><br><span class="line">    return :: a -&gt; m a</span><br><span class="line">    (&gt;&gt;=) :: m a -&gt; (a -&gt; m b) -&gt; m b</span><br></pre></td></tr></table></figure>
 <p>还有两个带默认实现的函数签名没有展示。通常我们也没有必要关心它们，使用默认实现即可。<br>return和Applicative 的 pure功能是一样的，都是将一个值放到包装里面去。（GHC 7.10中，return已有默认实现: return = pure）<br>bind接收一个包装，和一个函数，其中，这个函数接收一个普通值，并返回一个包装。bind函数最终返回一个包装。</p>
 <hr>
 <p>既然Monad是自函子范畴上的幺半群，那么它必须要有幺半群的特性。幺半群需要一个有幺元的集合、一个满足结合律的运算符。</p>
@@ -453,22 +454,22 @@
 <p>结合律搞定了，接着我们找下幺元。</p>
 <p>由于<code>&gt;&gt;=</code>作用在自函子范畴上，所以幺元是个函数。实际上，<code>return</code>这个函数就是当作幺元而定义的。</p>
 <p>综上，我们对Monad实现有如下限制条件：</p>
-<figure class="highlight haskell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="title">return</span> a &gt;&gt;= f      === f a</div><div class="line"><span class="title">m</span>        &gt;&gt;= return === m</div><div class="line">(m &gt;&gt;= f) &gt;&gt;= g     === m &gt;&gt;= (\x -&gt; f x &gt;&gt;= g)</div></pre></td></tr></table></figure>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">return</span> a &gt;&gt;= f      === f a</span><br><span class="line"><span class="title">m</span>        &gt;&gt;= return === m</span><br><span class="line">(m &gt;&gt;= f) &gt;&gt;= g     === m &gt;&gt;= (\x -&gt; f x &gt;&gt;= g)</span><br></pre></td></tr></table></figure>
 <h2 id="Monad-composition-operator"><a href="#Monad-composition-operator" class="headerlink" title="Monad composition operator"></a>Monad composition operator</h2><p>说实话，上面的这些式子看起来的确不像Monoid中那么直观。于是Haskell还给出了另一个运算符：<code>&gt;=&gt;</code>。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">(&gt;=&gt;) :: Monad m =&gt; (a -&gt; m b) -&gt; (b -&gt; m c) -&gt; (a -&gt; m c)</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(&gt;=&gt;) :: Monad m =&gt; (a -&gt; m b) -&gt; (b -&gt; m c) -&gt; (a -&gt; m c)</span><br></pre></td></tr></table></figure>
 <p>它有默认实现，即对入参调用第一个函数，然后和第二个函数bind，此处就不写出来了，有兴趣可以看看Haskell的Monad文档。</p>
 <p>它需要满足：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">return &gt;=&gt; f    === f</div><div class="line">f &gt;=&gt; return    === f</div><div class="line">(f &gt;=&gt; g) &gt;=&gt; h === f &gt;=&gt; (g &gt;=&gt; h)</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">return &gt;=&gt; f    === f</span><br><span class="line">f &gt;=&gt; return    === f</span><br><span class="line">(f &gt;=&gt; g) &gt;=&gt; h === f &gt;=&gt; (g &gt;=&gt; h)</span><br></pre></td></tr></table></figure>
 <p>这看起来就没有任何问题了，非常清晰的幺半群规则。</p>
 <h1 id="Monad在Java、ES中的实现"><a href="#Monad在Java、ES中的实现" class="headerlink" title="Monad在Java、ES中的实现"></a>Monad在Java、ES中的实现</h1><p>Monad并非Haskell专属，它在任何编程语言的标准库中都有广泛的应用（虽然设计者可能自己都没认识到）。</p>
 <h2 id="Java-Optional"><a href="#Java-Optional" class="headerlink" title="Java Optional"></a>Java Optional</h2><p>java 8的Optioanlhe和haskell的Maybe要解决的问题几乎一样。Optional提供了如下函数：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> &lt;T&gt; <span class="function">Optional&lt;T&gt; <span class="title">empty</span><span class="params">()</span></span>;</div><div class="line"><span class="keyword">static</span> &lt;T&gt; <span class="function">Optional&lt;T&gt; <span class="title">of</span><span class="params">(T value)</span></span>;</div><div class="line">&lt;U&gt; <span class="function">Optional&lt;U&gt; <span class="title">map</span><span class="params">(Function&lt;? <span class="keyword">super</span> T, ? extends U&gt; mapper)</span></span>;</div><div class="line">&lt;U&gt; <span class="function">Optional&lt;U&gt; <span class="title">flatMap</span><span class="params">(Function&lt;? <span class="keyword">super</span> T, Optional&lt;U&gt;&gt; mapper)</span></span>;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> &lt;T&gt; <span class="function">Optional&lt;T&gt; <span class="title">empty</span><span class="params">()</span></span>;</span><br><span class="line"><span class="keyword">static</span> &lt;T&gt; <span class="function">Optional&lt;T&gt; <span class="title">of</span><span class="params">(T value)</span></span>;</span><br><span class="line">&lt;U&gt; <span class="function">Optional&lt;U&gt; <span class="title">map</span><span class="params">(Function&lt;? <span class="keyword">super</span> T, ? extends U&gt; mapper)</span></span>;</span><br><span class="line">&lt;U&gt; <span class="function">Optional&lt;U&gt; <span class="title">flatMap</span><span class="params">(Function&lt;? <span class="keyword">super</span> T, Optional&lt;U&gt;&gt; mapper)</span></span>;</span><br></pre></td></tr></table></figure>
 <p>这里的<code>of</code>即为<code>return</code>，<code>map</code>即为Functor的<code>fmap</code>，<code>flatMap</code>即为Monad的<code>&gt;&gt;=</code>。</p>
 <p>虽然缺失了Applicative的<code>&lt;*&gt;</code>，但问题不大，毕竟没啥人会用它，我们选择性忽略即可。。。</p>
 <hr>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function">Optional&lt;Integer&gt; <span class="title">safeDiv</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span> </span>&#123;</div><div class="line">  <span class="keyword">if</span> (b == <span class="number">0</span>) <span class="keyword">return</span> Optional.empty();</div><div class="line">  <span class="keyword">return</span> Optional.of(a / b);</div><div class="line">&#125;</div><div class="line"></div><div class="line">Optional.of(a).flatMap(a-&gt; safeDiv(<span class="number">15</span>, a))</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Optional&lt;Integer&gt; <span class="title">safeDiv</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (b == <span class="number">0</span>) <span class="keyword">return</span> Optional.empty();</span><br><span class="line">  <span class="keyword">return</span> Optional.of(a / b);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Optional.of(a).flatMap(a-&gt; safeDiv(<span class="number">15</span>, a))</span><br></pre></td></tr></table></figure>
 <h2 id="ES6-Promise"><a href="#ES6-Promise" class="headerlink" title="ES6 Promise"></a>ES6 Promise</h2><p>Promise在ES6中作为标准库的一员，我们在这里忽略其冗长的实现规则，仅看其常见用法：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> readFile = <span class="function"><span class="keyword">function</span>(<span class="params">fileName</span>) </span>&#123;</div><div class="line">  <span class="keyword">const</span> content = fs.readFileSync(fileName, <span class="string">'utf8'</span>)</div><div class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve(content)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">httpHandler</span>(<span class="params">req, resp</span>) </span>&#123;</div><div class="line">  readFile(req.query.name).then(<span class="function"><span class="params">content</span> =&gt;</span> db.coll.findOne(content.split(<span class="string">','</span>)[<span class="number">0</span>])).then(<span class="function"><span class="params">data</span> =&gt;</span> resp.send(data))</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> readFile = <span class="function"><span class="keyword">function</span>(<span class="params">fileName</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> content = fs.readFileSync(fileName, <span class="string">'utf8'</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve(content)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">httpHandler</span>(<span class="params">req, resp</span>) </span>&#123;</span><br><span class="line">  readFile(req.query.name).then(<span class="function"><span class="params">content</span> =&gt;</span> db.coll.findOne(content.split(<span class="string">','</span>)[<span class="number">0</span>])).then(<span class="function"><span class="params">data</span> =&gt;</span> resp.send(data))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>js没有类型签名，但我们在上述用法中能看出：</p>
 <ol>
 <li>Promise.resolve 即为 return</li>
@@ -579,10 +580,10 @@
       
         <ul class="sidebar-nav motion-element">
           <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            Inhaltsverzeichnis
+            Table of Contents
           </li>
           <li class="sidebar-nav-overview" data-target="site-overview">
-            Übersicht
+            Overview
           </li>
         </ul>
       
@@ -605,8 +606,8 @@
             
               <a href="/archives">
             
-                <span class="site-state-item-count">7</span>
-                <span class="site-state-item-name">Artikel</span>
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">posts</span>
               </a>
             </div>
           
@@ -617,7 +618,7 @@
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
                 <span class="site-state-item-count">3</span>
-                <span class="site-state-item-name">Kategorien</span>
+                <span class="site-state-item-name">categories</span>
               </a>
             </div>
           
@@ -627,8 +628,8 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">4</span>
-                <span class="site-state-item-name">Tags</span>
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
               </a>
             </div>
           
@@ -693,7 +694,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -703,7 +704,7 @@
 </div>
 
 
-  <div class="powered-by">Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a></div>
+  <div class="powered-by">Powered by <a class="theme-link" href="https://hexo.io">Hexo</a></div>
 
   <span class="post-meta-divider">|</span>
 

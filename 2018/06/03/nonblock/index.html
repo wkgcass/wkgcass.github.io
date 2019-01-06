@@ -102,6 +102,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/06/03/nonblock/index.html">
 <meta property="og:site_name" content="wkgcass.blogs">
 <meta property="og:description" content="什么是异步IO从API上来说，是一组非阻塞的IO API，不过这是废话。 换个角度：程序不因为IO调用而被阻塞，就可以说程序是异步的。 要理解这个回答，首先要知道什么是“异步”。 编程或者架构模型有4种。 1. 阻塞A调用B后，一直等着B返回结果。 这是最广泛使用，也是最简单的一种模型。普通的函数调用、传统的阻塞IO都是如此。 2. 轮询A调用B后，A不断去B那里查询返回结果。 这在耗时任务中经常">
+<meta property="og:locale" content="default">
 <meta property="og:updated_time" content="2018-06-03T10:01:47.960Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="异步IO是什么？">
@@ -153,7 +154,7 @@
 
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="">
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
 
   
   
@@ -201,7 +202,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Startseite
+            Home
           </a>
         </li>
       
@@ -221,7 +222,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            Kategorien
+            Categories
           </a>
         </li>
       
@@ -285,7 +286,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">Posted on</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-03T15:44:44+08:00">
                 2018-06-03
@@ -306,7 +307,7 @@
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">In</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -377,7 +378,7 @@
 </ol>
 <p>所以，常见的异步回调框架，比如<code>libuv(c)</code>，<code>vertx(java)</code>，<code>nodejs</code>，函数签名大多是：<code>功能(参数, 回调函数)</code>。</p>
 <p>例如</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">db.find(<span class="string">'select * from xx'</span>, [], resultHandler);</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">resultHandler</span>(<span class="params">err, rows</span>) </span>&#123;</div><div class="line">  <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">db.find(<span class="string">'select * from xx'</span>, [], resultHandler);</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resultHandler</span>(<span class="params">err, rows</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这里的f就是<code>resultHandler</code>，arg就是<code>&#39;select * from xx&#39;, []</code>。</p>
 <p>但是，从语法上，没有人能保证这个调用真的跑到数据库里取回结果。比如在单元测试时，find函数可能会返回一堆预定义的数据。这样的过程显然不是“异步”的。</p>
 <p>那么，如下find函数实现做法，能算“异步”吗？</p>
@@ -407,8 +408,8 @@
 <p>有人可能不理解，为什么死循环不停调用就是异步了？这个线程不还是被“阻塞”了吗？</p>
 <p>有这种问题说明你对“阻塞”理解完全错误。阻塞并不是说“下面的代码还没有被执行”。CPU一条条指令执行下来，如果你写了一个死循环，而且有一个cpu核心就是钻牛角尖似的不停执行，那这就不是“阻塞”。阻塞是说，cpu目前已经不执行你这段代码了，但是下面的代码还没有被执行。比如你调用了阻塞版本的<code>write</code>，然后对端没有读取，那么线程就阻塞在那里，没有cpu会去执行后面的代码。</p>
 <h1 id="Epoll也会“阻塞”？"><a href="#Epoll也会“阻塞”？" class="headerlink" title="Epoll也会“阻塞”？"></a>Epoll也会“阻塞”？</h1><p>epoll_wait允许传一个超时时间。如果超过了这个时间还没有事件发生，会返回给你一个空list。也就是说，epoll也是可以“阻塞”线程的。但是我们不认为程序是“阻塞”的。因为，当epoll阻塞线程时，这时并没有任何事件需要处理。就像下面这两段程序：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Thread.sleep(1000);</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">long start = System.currentTimeMillis();</div><div class="line">while (System.currentTimeMillis() - start &gt; 1000);</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Thread.sleep(1000);</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">long start = System.currentTimeMillis();</span><br><span class="line">while (System.currentTimeMillis() - start &gt; 1000);</span><br></pre></td></tr></table></figure>
 <p>如果当作黑盒，两者效果是一模一样的。那么与其狂转cpu，还不如等着好了。我们之前的“定时器”示例也是如此，还不懂的话用那个例子思考一下，应该是能理解的。</p>
 <h1 id="线程池的选择"><a href="#线程池的选择" class="headerlink" title="线程池的选择"></a>线程池的选择</h1><p>阻塞IO的情况下，有人会说什么“偏IO的用cpu * 2，偏CPU的用cpu + 1”。这些都是扯淡。举个例子，16核cpu，你开了32线程。结果这时32个客户端都不写不读数据，那服务就卡死了。这时你发现不行，加到128个线程，结果有时候128个客户端都在请求，cpu跑满，瞬间卡死。所以阻塞IO的情况下，你设置多少都没用。</p>
 <p>看了上文，你应该能理解，非阻塞IO的情况下，如果有负载，那么程序的每个线程都是工作的，所以线程池线程数量等于CPU数即可。多了就会有不必要的上下文切换，少了就用不上cpu。</p>
@@ -510,10 +511,10 @@
       
         <ul class="sidebar-nav motion-element">
           <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            Inhaltsverzeichnis
+            Table of Contents
           </li>
           <li class="sidebar-nav-overview" data-target="site-overview">
-            Übersicht
+            Overview
           </li>
         </ul>
       
@@ -536,8 +537,8 @@
             
               <a href="/archives">
             
-                <span class="site-state-item-count">7</span>
-                <span class="site-state-item-name">Artikel</span>
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">posts</span>
               </a>
             </div>
           
@@ -548,7 +549,7 @@
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
                 <span class="site-state-item-count">3</span>
-                <span class="site-state-item-name">Kategorien</span>
+                <span class="site-state-item-name">categories</span>
               </a>
             </div>
           
@@ -558,8 +559,8 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">4</span>
-                <span class="site-state-item-name">Tags</span>
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
               </a>
             </div>
           
@@ -624,7 +625,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -634,7 +635,7 @@
 </div>
 
 
-  <div class="powered-by">Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a></div>
+  <div class="powered-by">Powered by <a class="theme-link" href="https://hexo.io">Hexo</a></div>
 
   <span class="post-meta-divider">|</span>
 

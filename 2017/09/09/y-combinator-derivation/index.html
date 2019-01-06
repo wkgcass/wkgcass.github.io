@@ -102,6 +102,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/09/09/y-combinator-derivation/index.html">
 <meta property="og:site_name" content="wkgcass.blogs">
 <meta property="og:description" content="什么是Y CombinatorY Combinator这个东西，确实有些绕。 Y Combiantor在工程中几乎没有任何用处，可能用到它的场合，可以有无数种替代方案。它的存在仅仅是为了让lambda算子模型变得完备。 要解释什么是Y Combinator，首先得说明下何为lambda算子。 lambda calculuslambda算子极其简洁，这里搬运（并翻译）下wikipedia中lambd">
+<meta property="og:locale" content="default">
 <meta property="og:updated_time" content="2017-09-09T09:29:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Y Combinator 推导">
@@ -153,7 +154,7 @@
 
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="">
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
 
   
   
@@ -201,7 +202,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Startseite
+            Home
           </a>
         </li>
       
@@ -221,7 +222,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            Kategorien
+            Categories
           </a>
         </li>
       
@@ -285,7 +286,7 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">Posted on</span>
               
               <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-09-09T15:01:05+08:00">
                 2017-09-09
@@ -306,7 +307,7 @@
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">In</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -421,58 +422,58 @@
 <p>以上就是lambda算子模型的整个系统。</p>
 <h2 id="Currying"><a href="#Currying" class="headerlink" title="Currying"></a>Currying</h2><p>在语法描述中，我们看到，Abstraction的参数部分只有一个参数。不管是数学，还是平时接触的c系语言，函数常常有多个输入。那么lambda算子应该怎么描述多参数的函数呢？</p>
 <p>这里需要用到一个叫做Currying的技巧。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">(<span class="function"><span class="keyword">function</span> (<span class="params">x, y, z</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> x + y + z</div><div class="line">&#125;)(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params">x, y, z</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> x + y + z</span><br><span class="line">&#125;)(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</span><br></pre></td></tr></table></figure>
 <p>可以写作</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">(<span class="function"><span class="keyword">function</span>(<span class="params">x</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">y</span>) </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">z</span>) </span>&#123;</div><div class="line">      <span class="keyword">return</span> x + y + z</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;)(<span class="number">1</span>)(<span class="number">2</span>)(<span class="number">3</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">y</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">z</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> x + y + z</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)(<span class="number">1</span>)(<span class="number">2</span>)(<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
 <p>这便是Currying，lambda算子中的“多个参数函数”表示为：传入一个参数，返回一个“捕获了这个参数”并“接收下一个参数”的函数。</p>
 <h2 id="递归？？？"><a href="#递归？？？" class="headerlink" title="递归？？？"></a>递归？？？</h2><p>lambda算子里没有任何循环的影子。我们都知道，任何循环和递归都能相互转化。既然不存在循环，那么只要函数能够递归即可。</p>
 <p>然而很不幸，lambda算子也无法实现递归。递归需要调用自己，要调用，就得知道函数名，然而lambda算子不存在“函数名”这一概念，所谓的Variable也只是函数形参以及函数体中的使用而已。</p>
 <p>那怎么办？难道lambda算子没有实际意义吗？</p>
 <p>而事实已经告诉我们lambda算子与图灵机是等价的，它可以计算任何可计算问题。所以总有一种方法能够将循环带入lambda算子模型中。</p>
 <p>虽然我们没有办法定义一个函数自己的名字，但是我们能够定义<em>函数参数</em>的名字，如果参数f是一个函数，那么我们只需要把f传入f，不就相当于完成了递归吗？<br>举一个实际例子：计算阶乘时，在js里，我们能够这样写：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">fac = <span class="function">(<span class="params">f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>)</div><div class="line">fac(fac, <span class="number">5</span>) <span class="comment">// 120</span></div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fac = <span class="function">(<span class="params">f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>)</span><br><span class="line">fac(fac, <span class="number">5</span>) <span class="comment">// 120</span></span><br></pre></td></tr></table></figure>
 <p>但是，要知道，lambda算子里没有函数名这一概念，也就是说，我们没有办法定义fac这个variable。所以这个表达式会写作：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">(<span class="function">(<span class="params">f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>))(<span class="function">(<span class="params">(f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>))(<span class="function">(<span class="params">(f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>))(<span class="function">(<span class="params">(f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>))(<span class="function">(<span class="params">(f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>))(<span class="comment">/* ... */</span>, <span class="number">5</span>), <span class="number">5</span>), <span class="number">5</span>), <span class="number">5</span>), <span class="number">5</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function">(<span class="params">f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>))(<span class="function">(<span class="params">(f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>))(<span class="function">(<span class="params">(f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>))(<span class="function">(<span class="params">(f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>))(<span class="function">(<span class="params">(f, n</span>) =&gt;</span> n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f, n<span class="number">-1</span>))(<span class="comment">/* ... */</span>, <span class="number">5</span>), <span class="number">5</span>), <span class="number">5</span>), <span class="number">5</span>), <span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 <p>永远也写不完。为了解决这个问题，我们需要引入一个概念，叫做“不动点”。</p>
 <h1 id="不动点"><a href="#不动点" class="headerlink" title="不动点"></a>不动点</h1><p>不动点，在数学中是指“被这个函数映射到其自身一个点”，可以写作<code>x = F(x)</code>。例如<code>f(x) = x^2 - 3x + 4</code>中，<code>f(2) = 2</code>，因此2是函数<code>f(x)</code>的不动点。</p>
 <p>上述例子的f是一个一阶函数，不动点是一个值；那么，如果f是一个高阶函数，那么“不动点”不就是一个函数了吗？</p>
 <p>暂时回到上面fac的例子。Currying一下，则可以得到：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">fac = <span class="function"><span class="params">f</span> =&gt;</span> n =&gt; n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f)(n<span class="number">-1</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fac = <span class="function"><span class="params">f</span> =&gt;</span> n =&gt; n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f)(n<span class="number">-1</span>)</span><br></pre></td></tr></table></figure>
 <p>我们根据不动点的性质<code>x = F(x)</code>，若令<code>x = fac(f)</code>，可以得到<code>fac(f) = F(fac(f))</code>。<code>fac</code>中的<code>f</code>，虽然lambda算子里不能传fac，但是我们希望传入的的确是<code>fac</code>，所以<code>f(f)</code>即为<code>fac(f)</code>。也就是说，如果我们能够找到一个<code>F</code>，用于替代<code>f(f)</code>，那么所谓的“递归”就变得可行了。</p>
 <p>计算一个函数的不动点的算子，我们称之为<code>Y Combinator</code>。</p>
 <h1 id="Y-Combinator-推导"><a href="#Y-Combinator-推导" class="headerlink" title="Y Combinator 推导"></a>Y Combinator 推导</h1><p>我们希望有这样的结果：使用Y Combinator计算“某个函数”的不动点，该不动点是一个函数；接着传入一个参数，作为实际“递归”计算的起始值。在计算阶乘<code>fac</code>的这个例子中，可以写作：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Y(fac0)(<span class="number">5</span>) <span class="comment">// result: 120</span></div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Y(fac0)(<span class="number">5</span>) <span class="comment">// result: 120</span></span><br></pre></td></tr></table></figure>
 <p>我们依然使用<code>fac</code>进行推导，我们目前拿到的是<code>fac</code>的Currying后的模式。后面将一步步提取出<code>fac0</code>*，并导出<code>Y</code>。</p>
 <blockquote>
 <p>实际上fac0就是fac，见后面推导。</p>
 </blockquote>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">fac = <span class="function"><span class="params">f</span> =&gt;</span> n =&gt; n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f)(n<span class="number">-1</span>)</div><div class="line"><span class="comment">// 调用：</span></div><div class="line">fac(fac)(<span class="number">5</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fac = <span class="function"><span class="params">f</span> =&gt;</span> n =&gt; n === <span class="number">1</span> ? <span class="number">1</span> : n * f(f)(n<span class="number">-1</span>)</span><br><span class="line"><span class="comment">// 调用：</span></span><br><span class="line">fac(fac)(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 <p>将实际运算做一层封装，将f和n作为参数传入</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">fac = <span class="function"><span class="params">f</span> =&gt;</span> n =&gt; (<span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(g)(h<span class="number">-1</span>))(f)(n)</div><div class="line"><span class="comment">// 调用：</span></div><div class="line">fac(fac)(<span class="number">5</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fac = <span class="function"><span class="params">f</span> =&gt;</span> n =&gt; (<span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(g)(h<span class="number">-1</span>))(f)(n)</span><br><span class="line"><span class="comment">// 调用：</span></span><br><span class="line">fac(fac)(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 <p>我们发现这个函数中有一个<code>g(g)</code>，那么我们稍微修改一下，将<code>g(g)</code>替换为一个函数</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">fac = <span class="function"><span class="params">f</span> =&gt;</span> n =&gt; (<span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>))(f(f))(n)</div><div class="line"><span class="comment">// 调用：</span></div><div class="line">fac(fac)(<span class="number">5</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fac = <span class="function"><span class="params">f</span> =&gt;</span> n =&gt; (<span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>))(f(f))(n)</span><br><span class="line"><span class="comment">// 调用：</span></span><br><span class="line">fac(fac)(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 <p>提取该函数</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>)</div><div class="line">fac = <span class="function"><span class="params">f</span> =&gt;</span> n =&gt; fac0(f(f))(n)</div><div class="line"><span class="comment">// 调用：</span></div><div class="line">fac(fac)(<span class="number">5</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>)</span><br><span class="line">fac = <span class="function"><span class="params">f</span> =&gt;</span> n =&gt; fac0(f(f))(n)</span><br><span class="line"><span class="comment">// 调用：</span></span><br><span class="line">fac(fac)(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 <p>将fac0作为参数传入，而不是写死（lambda算子不允许函数名）</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>)</div><div class="line">fac = <span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n)</div><div class="line"><span class="comment">// 调用：由于fac多了一个参数，所以调用时同样增加一个参数</span></div><div class="line">fac(fac0)(fac(fac0))(<span class="number">5</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>)</span><br><span class="line">fac = <span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n)</span><br><span class="line"><span class="comment">// 调用：由于fac多了一个参数，所以调用时同样增加一个参数</span></span><br><span class="line">fac(fac0)(fac(fac0))(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 <p>可以看到，fac(fac0)是重复的，我们可以对调用做一个简单的封装</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>)</div><div class="line">fac = <span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n)</div><div class="line"><span class="comment">// 调用：</span></div><div class="line">(<span class="function"><span class="params">g</span> =&gt;</span> g(g))(fac(fac0))(<span class="number">5</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>)</span><br><span class="line">fac = <span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n)</span><br><span class="line"><span class="comment">// 调用：</span></span><br><span class="line">(<span class="function"><span class="params">g</span> =&gt;</span> g(g))(fac(fac0))(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 <p>这时能看到，调用有了一丝Y的影子。现在我们尝试把<code>fac0</code>单独提出去</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(g)(h<span class="number">-1</span>)</div><div class="line">fac = <span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n)</div><div class="line"><span class="comment">// 调用：</span></div><div class="line">(<span class="function"><span class="params">p</span> =&gt;</span> q =&gt; (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(p(q)))(fac)(fac0)(<span class="number">5</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(g)(h<span class="number">-1</span>)</span><br><span class="line">fac = <span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n)</span><br><span class="line"><span class="comment">// 调用：</span></span><br><span class="line">(<span class="function"><span class="params">p</span> =&gt;</span> q =&gt; (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(p(q)))(fac)(fac0)(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 <p>ok，这时调用已经完整的以Y的形式展现了，我们把“调用”的Y部分提取一下</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(g)(h<span class="number">-1</span>)</div><div class="line">fac = <span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n)</div><div class="line">Y = (<span class="function"><span class="params">p</span> =&gt;</span> q =&gt; (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(p(q)))(fac)</div><div class="line"><span class="comment">// 调用：</span></div><div class="line">Y(fac0)(<span class="number">5</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(g)(h<span class="number">-1</span>)</span><br><span class="line">fac = <span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n)</span><br><span class="line">Y = (<span class="function"><span class="params">p</span> =&gt;</span> q =&gt; (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(p(q)))(fac)</span><br><span class="line"><span class="comment">// 调用：</span></span><br><span class="line">Y(fac0)(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 <p>这时我们不必再考虑<code>调用</code>和<code>fac0</code>了。<br>我们把<code>fac</code>代入Y</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Y = (<span class="function"><span class="params">p</span> =&gt;</span> q =&gt; (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(p(q)))(<span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n))</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Y = (<span class="function"><span class="params">p</span> =&gt;</span> q =&gt; (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(p(q)))(<span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n))</span><br></pre></td></tr></table></figure>
 <p>根据<code>β-规约</code>，化简一下</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 代入p</span></div><div class="line">Y = <span class="function"><span class="params">q</span> =&gt;</span> (<span class="function"><span class="params">g</span> =&gt;</span> g(g))((<span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n))(q))</div><div class="line"><span class="comment">// 代入后面那个g</span></div><div class="line">Y = <span class="function"><span class="params">q</span> =&gt;</span> (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(<span class="function"><span class="params">f</span> =&gt;</span> n =&gt; q(f(f))(n))</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 代入p</span></span><br><span class="line">Y = <span class="function"><span class="params">q</span> =&gt;</span> (<span class="function"><span class="params">g</span> =&gt;</span> g(g))((<span class="function"><span class="params">g</span> =&gt;</span> f =&gt; <span class="function"><span class="params">n</span> =&gt;</span> g(f(f))(n))(q))</span><br><span class="line"><span class="comment">// 代入后面那个g</span></span><br><span class="line">Y = <span class="function"><span class="params">q</span> =&gt;</span> (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(<span class="function"><span class="params">f</span> =&gt;</span> n =&gt; q(f(f))(n))</span><br></pre></td></tr></table></figure>
 <p>根据<code>α-变换</code>，改一下变量名，好看点</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Y = <span class="function"><span class="params">x</span> =&gt;</span> (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(<span class="function"><span class="params">y</span> =&gt;</span> z =&gt; x(y(y))(z))</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Y = <span class="function"><span class="params">x</span> =&gt;</span> (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(<span class="function"><span class="params">y</span> =&gt;</span> z =&gt; x(y(y))(z))</span><br></pre></td></tr></table></figure>
 <p>到此，我们已经找到了Y Combinator。再检查一下，我们推导过程中声明了许多中间变量，但是可以看到，没有任何的依赖关系，它们相互之间是完全独立的函数，并且，它们完全符合lambda算子模型的所有要求。</p>
 <p>我们可以试验一下我们的成果：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">(<span class="function"><span class="params">x</span> =&gt;</span> (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(<span class="function"><span class="params">y</span> =&gt;</span> z =&gt; x(y(y))(z)))(<span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>))(<span class="number">5</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="params">x</span> =&gt;</span> (<span class="function"><span class="params">g</span> =&gt;</span> g(g))(<span class="function"><span class="params">y</span> =&gt;</span> z =&gt; x(y(y))(z)))(<span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>))(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 <p>结果是120，ok。</p>
 <h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>我们回顾一下<code>fac0</code>这个函数：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>)</div></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fac0 = <span class="function"><span class="params">g</span> =&gt;</span> h =&gt; h === <span class="number">1</span> ? <span class="number">1</span> : h * g(h<span class="number">-1</span>)</span><br></pre></td></tr></table></figure>
 <p>做一下α-变换，转换为<code>fac0 = f =&gt; n =&gt; n === 1 ? 1 : n * f(n-1)</code>后发现和最初我们写的那个<code>fac</code>一模一样。也就是说，Y Combinator计算出了最初那个fac函数的不动点！</p>
 <p>另外，有同学可能发现<code>y =&gt; z =&gt; x(y(y))(z)</code>中的<code>z</code>似乎没有任何意义，毕竟<code>return function(x) { return some_func(x); }</code>还不如直接<code>return some_func</code>。<br>也就是说，应当可以写作<code>Y = x =&gt; (g =&gt; g(g))(y =&gt; x(y(y)))</code><br>但是在js、或者主流的c、java、go等<code>call by value</code>的语言中，省略z意味着无限递归。具体原因或者证明解释起来有点麻烦，但是相信大家脑中都能隐约体会这一点（而且实际也是如此），此处不再详提。对于<code>call by need</code>的语言（大多数LISP|ML|HASKELL）来说，是可以省略的。</p>
 <p>wikipedia给出的Y Combinator描述是这样的：</p>
@@ -579,10 +580,10 @@
       
         <ul class="sidebar-nav motion-element">
           <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            Inhaltsverzeichnis
+            Table of Contents
           </li>
           <li class="sidebar-nav-overview" data-target="site-overview">
-            Übersicht
+            Overview
           </li>
         </ul>
       
@@ -605,8 +606,8 @@
             
               <a href="/archives">
             
-                <span class="site-state-item-count">7</span>
-                <span class="site-state-item-name">Artikel</span>
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">posts</span>
               </a>
             </div>
           
@@ -617,7 +618,7 @@
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
                 <span class="site-state-item-count">3</span>
-                <span class="site-state-item-name">Kategorien</span>
+                <span class="site-state-item-name">categories</span>
               </a>
             </div>
           
@@ -627,8 +628,8 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">4</span>
-                <span class="site-state-item-name">Tags</span>
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
               </a>
             </div>
           
@@ -693,7 +694,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -703,7 +704,7 @@
 </div>
 
 
-  <div class="powered-by">Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a></div>
+  <div class="powered-by">Powered by <a class="theme-link" href="https://hexo.io">Hexo</a></div>
 
   <span class="post-meta-divider">|</span>
 
